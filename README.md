@@ -1,2 +1,2 @@
 # stream14C-DOC
-Models used in Alaska stream DOC age manuscript
+Code used to generate general additive models used in Alaska stream DOC age manuscript
