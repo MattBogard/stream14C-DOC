@@ -1,0 +1,96 @@
+#This code is used to generate statistics and graphs in 
+#the article "Heterogeneous patterns of aged organic carbon export driven by hydrologic 
+#flow paths, soil texture, fire and thaw in discontinuous permafrost headwaters"
+#by J. Koch, M. Bogard, and coauthors.
+#This work was done in R version 4.1.2
+#all data used in the paper can be downloaded directly from 
+#https://www.sciencebase.gov/catalog/item/5bb786b0e4b0fc368e906b09
+
+
+
+
+
+#packages used in analyses
+library(mgcv)
+library(readxl)
+library(ggplot2)
+library(dplyr)
+library(mgcViz)
+library(gratia)
+library('corrplot')
+
+#### Code for formatting figure 6 ####
+fig_theme  <- theme_bw(base_size = 11)+theme (plot.margin=unit(c(0.01,0.03,0.01,0.01), "cm"), 
+                                              axis.line = element_line(),
+                                              axis.title=element_text(size=11,colour = "black"), 
+                                              plot.title = element_text(size=11, face = 1,colour = "black"),
+                                              axis.text.x=element_text(size=11,colour = "black"),
+                                              axis.text.y=element_text(size=11, colour = "black"),
+                                              axis.text = element_text(colour = "black"),
+                                              strip.text = element_text(size=11, colour = "black"),
+                                              legend.text=element_text(size=11),
+                                              legend.title=element_blank(),
+                                              panel.background = element_blank(),
+                                              panel.grid.major = element_blank(), 
+                                              panel.grid.minor = element_blank(),
+                                              panel.border = element_rect(colour = "black", fill=NA, size=0.5))
+
+
+
+
+#importing data set used in calculations, which was sub-setted from parent database on ScienceBase (link above)
+
+AKstream <- read.csv("ak_stream_MASTER_R_input.csv", na = c(""))
+
+#GAM for  D14CDOC versus mineral layer flow contribution + season 
+del14C_GAM_minfrac <- gam(doc.d14c ~ s(hydro.frac.min) +  
+                            +(seasonf),
+                          data = AKstream, family = gaussian(), method = 'REML')
+
+layout(matrix(1:4, ncol = 2))
+gam.check(del14C_GAM_minfrac, rep = 100)
+layout(1)
+summary(del14C_GAM_minfrac)
+plot.gam(del14C_GAM_minfrac, pages = 1)
+
+#graph exported for figure 6 panel a
+jpeg("del14C_GAM_minfrac.jpeg", width = 8, height = 4, units = 'in', res = 1200)
+draw(del14C_GAM_minfrac) + fig_theme
+dev.off()
+
+
+#GAM for D14CDOC versus catchment relative burn area
+del14C_GAM_burnar <- gam(doc.d14c ~ s(burn.ar, k = 6) +
+                           +(seasonf),
+                         data = AKstream, family = gaussian(), method = 'REML')
+
+layout(matrix(1:4, ncol = 2))
+gam.check(del14C_GAM_burnar, rep = 100)
+layout(1)
+summary(del14C_GAM_burnar)
+plot.gam(del14C_GAM_burnar, pages = 1)
+
+
+#graph exported for figure 6 panel c
+jpeg("del14C_GAMburnar.jpeg", width = 8, height = 4, units = 'in', res = 1200)
+draw(del14C_GAM_burnar) + fig_theme
+dev.off()
+
+
+#GAM for D14CDOC versus fraction upland silt + season
+del14C_GAM_uplsilt <- gam(doc.d14c ~ s(fract.upl.silt, k = 4) +
+                            +(seasonf),
+                          data = AKstream, family = gaussian(), method = 'REML')
+
+layout(matrix(1:4, ncol = 2))
+gam.check(del14C_GAM_uplsilt, rep = 100)
+layout(1)
+summary(del14C_GAM_uplsilt)
+plot.gam(del14C_GAM_uplsilt, pages = 1)
+
+
+#graph exported for figure 6 panel e
+jpeg("del14C_GAMuplsilt.jpeg", width = 8, height = 4, units = 'in', res = 1200)
+draw(del14C_GAM_uplsilt) + fig_theme
+dev.off()
+
